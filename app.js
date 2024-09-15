@@ -26,8 +26,17 @@ app.use(cookieParser());
 app.use(stylus.middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// storage
+// file filter for handling badness
+function fileFilter(_request, _response, cb) {
+  const badtypes = /.mp4|.avi|.wav|.mp3|.app|.exe|.so|.dylib|.sh|.bash|.zsh|.a|.tiff/;
+  if (badtypes)
+    cb('err: these are vv bad :(((')
+  else
+    cb(null, true);
+}
+
 const storage = multer.diskStorage({
+  fileFilter, // gotta add our filter
   destination: (_request, file, cb) => {
     let ext = require('node:path').extname(file.originalname);
     ext = ext.length > 1 ? ext : '.' + require('mime').extension(file.mimetype);
@@ -37,31 +46,49 @@ const storage = multer.diskStorage({
   }
 });
 
-// sort out our upload busienss
 const upload = multer({storage});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+async function processFiles(request, response) {
+  console.log('ive just been called! this is a test');
+  const folder_name = 'public/uploads/';
+  const folder = path.join(__dirname, folder_name);
+
+  await fs.stat(folder, (err, stats) => {
+    if (err)
+      console.error(err);
+
+    console.log(stats);
+    console.log(`isFile ? ${stats.isFile()}`)
+  }).then(async () => {
+    const magick = require('imagemagick');
+    let data = [];
+    // TODO: code is broken here :(
+    // await fs.readdir(folder).forEach(element => {
+    //   element.push(data);
+    // });
+    //
+    // for (let image of data) {
+    //   magick.convert(image, String(`${require('node:crypto').randomBytes(16)}.jpg`), ((err, out) => {
+    //     if (err)
+    //       response.status(500);
+    //     
+    //     response.sendFile(out);
+    //   }))
+    // }
+  })
+}
+
 function uploadFiles(request, response) {
   console.log(request.body);
   console.log(request.files);
   response.json({message: 'successfully uploaded', status: 200});
+  processFiles(request, response);
 }
 
-async function processFiles() {
-  const folder = path.join(__dirname, folder_name);
-
-  fs.stat(folder, (err, stats) => {
-    if (err)
-      console.error(err);
-  })
-
-  console.log(stats);
-  console.log(`isFile ? ${stats.isFile()}`)
-}
-
-app.post('/processor', upload.array('images'), uploadFiles);
+app.post('/upload', upload.array('images'), uploadFiles);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -70,11 +97,9 @@ app.use((req, res, next) => {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });

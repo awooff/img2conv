@@ -11,7 +11,7 @@ function handleSubmit(event) {
     formData.append('images', images.files);
   }
 
-  const url = '/processor';
+  const url = '/upload';
   const fetchOptions = {
     method: 'post',
     body: formData

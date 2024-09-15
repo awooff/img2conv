@@ -7,12 +7,19 @@ block content
   hr
 
   form(
-    action='/processor',
+    action='/upload',
     method='POST',
     enctype='multipart/form-data')
 
     label(for='images') select & upload ur files here :)
-    input(name='images' id='images' type='file' multiple required)
+
+    input(
+      name='images'
+      id='images'
+      type='file'
+      multiple required)
+
+    img(id='output' width='300')
     
     select(name='filetype_output' id='filetype_select')
       option(value='') Please choose an option,,
@@ -23,5 +30,10 @@ block content
       (onclick)='upload()'
     ) submit!
 
+    if errors
+      each error, i in errors
+        li #{error.msg}
+
   script(src='/javascripts/capturefiles.js')
+  script(src='/javascripts/displayfiles.js')
 
