@@ -3,12 +3,12 @@ form.addEventListener('submit', handleSubmit);
 
 function handleSubmit(event) {
   event.preventDefault();
-  const images = document.getElementById('filetype_select');
+  const images = document.getElementById('images');
 
   const formData = new FormData(form);
 
-  for (let i = 0; i < files.files.length; ++i) {
-    formData.append('files', files.files);
+  for (let i = 0; i < images.files.length; ++i) {
+    formData.append('images', images.files);
   }
 
   const url = '/processor';

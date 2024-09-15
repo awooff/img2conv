@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // storage
 const storage = multer.diskStorage({
   destination: (_request, file, cb) => {
-    const ext = require('node:path').extname(file.originalname);
+    let ext = require('node:path').extname(file.originalname);
     ext = ext.length > 1 ? ext : '.' + require('mime').extension(file.mimetype);
     require('node:crypto').pseudoRandomBytes(16, (err, raw) => {
       cb(null, 'public/uploads'/*(err ? undefined : raw.toString('hex') )+ ext*/);
