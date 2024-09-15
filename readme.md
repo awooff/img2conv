@@ -15,3 +15,8 @@ and run it yrself
 
 #ez
 
+## screenshots
+
+![console](./public/images/console.png)
+![console](./public/images/webbysite.png)
+
