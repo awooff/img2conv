@@ -20,4 +20,4 @@ and run it yrself
 ![console](./public/images/console.png)
 ![console](./public/images/webbysite.png)
 
-[![]("https://gamebanana.com/mods/embeddables/420857?type=large")](https://gamebanana.com/mods/420857)
+<a href="https://gamebanana.com/mods/420857"><img src="https://gamebanana.com/mods/embeddables/420857?type=large"/></a>
