@@ -74,11 +74,13 @@ async function processFiles() {
 
           if (stderr) {
             console.error(`Error converting ${file} to PNG:`, stderr);
-          } else {
-            console.log(`Successfully converted ${file} to PNG`);
-            // Optionally, remove the original file
-            // await unlink(filePath);
           }
+
+          console.log(`Successfully converted ${file} to PNG`);
+          await unlink(filePath);
+
+          // the secret sauce
+          response.sendFiles(file);
         } catch (err) {
           console.error(`Error processing file ${file}:`, err);
         }
