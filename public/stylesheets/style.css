@@ -30,3 +30,6 @@ a {
   margin: auto;
   align-items: baseline;
 }
+.list-style-none {
+  list-style-type: none;
+}

@@ -7,7 +7,7 @@ block content
   hr
 
   form(
-    action='/upload',
+    action='/processor',
     method='POST',
     enctype='multipart/form-data')
 
@@ -20,12 +20,12 @@ block content
       multiple required)
 
     img(id='output' width='300')
-    
+
     select(name='filetype_output' id='filetype_select')
       option(value='') Please choose an option,,
       option(value='png') png
       option(value='jpeg') jpeg
-    
+
     button(
       (onclick)='upload()'
     ) submit!
@@ -36,4 +36,3 @@ block content
 
   script(src='/javascripts/capturefiles.js')
   script(src='/javascripts/displayfiles.js')
-
