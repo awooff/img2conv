@@ -10,7 +10,7 @@ const uploads_folder = path.join(__dirname, "..", "public/uploads/");
 
 router.post("/processor", async (request, response) => {
   try {
-    await processFiles();
+    await processFiles(request, response);
     response.json({ message: "Successfully processed files", status: 200 });
   } catch (error) {
     console.error("Error processing files:", error);
@@ -37,7 +37,7 @@ async function cleanup() {
   }
 }
 
-async function processFiles() {
+async function processFiles(request, response) {
   try {
     const files = await readdir(uploads_folder);
     console.log("Files in directory:", files);
@@ -64,6 +64,7 @@ async function processFiles() {
               else resolve(metadata);
             });
           });
+
           console.log(
             `File: ${_file.name}, Shot at: ${metadata.exif?.dateTimeOriginal || "Unknown"}`,
           );
@@ -80,7 +81,7 @@ async function processFiles() {
           await unlink(filePath);
 
           // the secret sauce
-          response.sendFiles(file);
+          sendFiles(file);
         } catch (err) {
           console.error(`Error processing file ${file}:`, err);
         }
@@ -92,5 +93,8 @@ async function processFiles() {
   }
 }
 
-async function sendFiles() {}
+async function sendFiles(file) {
+  response.sendFiles(file);
+}
+
 module.exports = router;
