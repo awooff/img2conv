@@ -27,6 +27,8 @@ magick.identify(["--version"], (error, output) => {
 });
 
 // all done? good!
+// ---------------------------
+// happi :3
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -40,7 +42,6 @@ app.use(cookieParser());
 app.use(stylus.middleware(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public")));
 
-// file filter for handling badness
 function fileFilter(_request, _response, cb) {
   const badtypes =
     /.mp4|.avi|.wav|.mp3|.app|.exe|.so|.dylib|.sh|.bash|.zsh|.a|.tiff/;
@@ -70,7 +71,7 @@ app.use((req, res, next) => {
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
