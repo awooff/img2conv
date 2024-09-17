@@ -5,96 +5,85 @@ const fs = require("fs");
 const { readdir, unlink } = require("node:fs/promises");
 const path = require("node:path");
 const util = require("util");
-const exec = util.promisify(require("child_process").exec);
+const convert = util.promisify(magick.convert);
 const uploads_folder = path.join(__dirname, "..", "public/uploads/");
 
 router.post("/processor", async (request, response) => {
   try {
-    await processFiles(request, response);
-    response.json({ message: "Successfully processed files", status: 200 });
+    const convertedFiles = await processFiles(request.body.extension);
+    response.json({
+      message: "Successfully processed files",
+      status: 200,
+      files: convertedFiles,
+    });
   } catch (error) {
     console.error("Error processing files:", error);
     response
       .status(500)
       .json({ message: "Error processing files", status: 500 });
   } finally {
-    debugger;
-    await cleanup();
+    // await cleanup();
   }
 });
 
 async function cleanup() {
   try {
     const files = await readdir(uploads_folder);
-
     for (const file of files) {
-      await unlink(path.join(uploads_folder, file));
+      if (!file.endsWith(".png")) {
+        // Only delete non-PNG files
+        await unlink(path.join(uploads_folder, file));
+      }
     }
-
     console.warn("Cleaned up the uploads folder :) ready to go!");
   } catch (err) {
     console.error("Error during cleanup:", err);
   }
 }
 
-async function processFiles(request, response) {
-  try {
-    const files = await readdir(uploads_folder);
-    console.log("Files in directory:", files);
+async function processFiles(extension) {
+  const files = await readdir(uploads_folder);
+  console.log("Files in directory:", files);
 
-    await Promise.all(
-      files.map(async (file) => {
-        const filePath = path.join(uploads_folder, file);
-        console.log("Attempting to process file:", filePath); // Add this line
+  const convertedFiles = [];
+  await Promise.all(
+    files.map(async (file) => {
+      const filePath = path.join(uploads_folder, file);
+      console.log("Attempting to process file:", filePath);
 
-        if (!fs.existsSync(filePath)) {
-          console.log(`File does not exist: ${filePath}`);
-        }
+      if (!fs.existsSync(filePath)) {
+        console.log(`File does not exist: ${filePath}`);
+        return;
+      }
 
-        let _file = path.parse(filePath);
-        if (_file.name === ".gitignore") return;
+      let _file = path.parse(filePath);
+      console.log("File exists, parsed path:", _file);
 
-        console.log("File exists, parsed path:", _file); // Add this line
+      try {
+        const metadata = await util.promisify(magick.readMetadata)(filePath);
+        console.log(
+          `file ${_file.name}, shot at ${metadata.exif?.dateTimeOriginal || "unknown! :("}`,
+        );
 
-        try {
-          const metadata = await new Promise((resolve, reject) => {
-            magick.readMetadata(filePath, (err, metadata) => {
-              // Change _file.path to filePath
-              if (err) reject(err);
-              else resolve(metadata);
-            });
-          });
+        const outputPath = path.join(
+          uploads_folder,
+          `${_file.name}.${extension}`,
+        );
+        await convert([filePath, outputPath]);
 
-          console.log(
-            `File: ${_file.name}, Shot at: ${metadata.exif?.dateTimeOriginal || "Unknown"}`,
-          );
+        console.log(`Successfully converted ${file} to ${extension}`);
+        convertedFiles.push(outputPath);
 
-          const output_path = path.join(uploads_folder, `${_file.name}.png`);
-          const command = `convert "${filePath}" "${output_path}"`;
-          const { stdout, stderr } = await exec(command);
-
-          if (stderr) {
-            console.error(`Error converting ${file} to PNG:`, stderr);
-          }
-
-          console.log(`Successfully converted ${file} to PNG`);
+        if (filePath !== outputPath) {
           await unlink(filePath);
-
-          // the secret sauce
-          sendFiles(file);
-        } catch (err) {
-          console.error(`Error processing file ${file}:`, err);
         }
-      }),
-    );
-  } catch (err) {
-    console.error("Error reading directory:", err);
-    throw err;
-  }
-}
+      } catch (err) {
+        console.error(`Error processing file ${file}:`, err);
+      }
+    }),
+  );
 
-async function sendFiles(file) {
-  response.sendFiles(file);
+  return convertedFiles;
 }
 
 module.exports = router;

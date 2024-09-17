@@ -21,10 +21,14 @@ block content
 
     img(id='output' width='300')
 
+    label(for='filetype_output') please choose an option,,
     select(name='filetype_output' id='filetype_select')
-      option(value='') Please choose an option,,
       option(value='png') png
       option(value='jpeg') jpeg
+      option(value='gif') gif
+      option(value='webp') webp
+      option(value='avif') avif
+      option(value='svg') svg
 
     button(
       (onclick)='upload()'
@@ -34,5 +38,5 @@ block content
       each error, i in errors
         li #{error.msg}
 
-  script(src='/javascripts/capturefiles.js')
-  script(src='/javascripts/displayfiles.js')
+  script(defer src='/javascripts/capturefiles.js')
+  script(defer src='/javascripts/displayfiles.js')

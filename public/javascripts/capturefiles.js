@@ -4,17 +4,21 @@ form.addEventListener("submit", handleSubmit);
 function handleSubmit(event) {
   event.preventDefault();
   const images = document.getElementById("images");
+  const selection = document.getElementById("filetype_select");
+  const extension = selection.options[selection.selectedIndex].text;
 
-  const formData = new FormData(form);
+  const body = new FormData(form);
 
   for (let i = 0; i < images.files.length; ++i) {
-    formData.append("images", images.files);
+    body.append("images", images.files);
   }
+
+  body.append("extension", extension);
 
   const url = "/processor";
   const fetchOptions = {
     method: "post",
-    body: formData,
+    body,
   };
 
   fetch(url, fetchOptions)
