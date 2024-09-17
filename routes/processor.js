@@ -58,7 +58,6 @@ router.post("/processor", async (request, response) => {
       });
 
       logger.info("Finalizing archive...");
-      cleanup();
 
       await archive.finalize();
     } else {
@@ -72,21 +71,6 @@ router.post("/processor", async (request, response) => {
       .json({ message: "Error processing files", status: 500 });
   }
 });
-
-async function cleanup() {
-  try {
-    const files = await readdir(uploads_folder);
-    for (const file of files) {
-      if (!file.endsWith(".png")) {
-        // Only delete non-PNG files
-        await unlink(path.join(uploads_folder, file));
-      }
-    }
-    logger.warn("Cleaned up the uploads folder :) ready to go!");
-  } catch (err) {
-    logger.error("Error during cleanup:", err);
-  }
-}
 
 async function processFiles(extension) {
   const files = await readdir(uploads_folder);

@@ -12,6 +12,7 @@ const magick = require("imagemagick");
 const indexRouter = require("./routes/index");
 const processorRouter = require("./routes/processor");
 const downloadRouter = require("./routes/download");
+const cleanupRouter = require("./routes/cleanup");
 
 const app = express();
 
@@ -66,6 +67,7 @@ const upload = multer({ storage });
 app.get("/", indexRouter);
 app.post("/processor", upload.array("images"), processorRouter);
 app.get("/download", downloadRouter);
+app.get("/cleanup", cleanupRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
