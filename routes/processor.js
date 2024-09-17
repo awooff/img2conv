@@ -22,6 +22,7 @@ router.post("/processor", async (request, response) => {
       .status(500)
       .json({ message: "Error processing files", status: 500 });
   } finally {
+    // not rn
     // await cleanup();
   }
 });
